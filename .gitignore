@@ -13,5 +13,5 @@ docs/
 # Dotenv file
 .env
 off-chain/node_modules
-off-chain/build
+off-chain/build*
 .idea

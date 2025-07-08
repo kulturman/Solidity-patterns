@@ -109,10 +109,19 @@ class OracleFeeder {
             console.error('Error updating oracle rates:', error);
             throw error;
         }
+
+        //Check oracle was updated
+        try {
+            const usdRate = await this.oracleContract.getRate('USD');
+
+            console.log(`Current USD rate: ${ethers.formatUnits(usdRate[0], 18)}`);
+        } catch (error) {
+            console.error('Error fetching updated rates:', error);
+        }
     }
 
-    async startPeriodicUpdates(intervalMinutes: number = 60): Promise<void> {
-        console.log(`Starting periodic updates every ${intervalMinutes} minutes`);
+    async startPeriodicUpdates(intervalInSeconds: number = 60): Promise<void> {
+        console.log(`Starting periodic updates every ${intervalInSeconds} minutes`);
 
         await this.updateOracleRates();
 
@@ -122,7 +131,7 @@ class OracleFeeder {
             } catch (error) {
                 console.error('Failed to update rates:', error);
             }
-        }, intervalMinutes * 60 * 1000);
+        }, intervalInSeconds * 1000);
     }
 }
 
@@ -135,6 +144,6 @@ if (!PRIVATE_KEY || !ORACLE_ADDRESS) {
 }
 
 const oracleFeeder = new OracleFeeder(RPC_URL, PRIVATE_KEY, ORACLE_ADDRESS);
-oracleFeeder.startPeriodicUpdates(60)
+oracleFeeder.startPeriodicUpdates(3)
     .then(() => console.log('Oracle feeder started successfully'))
     .catch(error => console.error('Error starting oracle feeder:', error));
