@@ -109,24 +109,13 @@ class OracleFeeder {
             console.error('Error updating oracle rates:', error);
             throw error;
         }
-
-        //Check it was really updated on contract
-        /*try {
-            const [currentUsdRate, currentUsdTimestamp] = await this.oracleContract.getRate('USD');
-            console.log(`USD rate confirmed: ${currentUsdRate.toString()} at ${currentUsdTimestamp}`);
-        } catch (getRateError) {
-            const decodedError = this.decodeCustomError(getRateError);
-            throw new Error(`Failed to verify USD rate: ${decodedError}`);
-        }*/
     }
 
     async startPeriodicUpdates(intervalMinutes: number = 60): Promise<void> {
         console.log(`Starting periodic updates every ${intervalMinutes} minutes`);
 
-        // Initial update
         await this.updateOracleRates();
 
-        // Set up periodic updates
         setInterval(async () => {
             try {
                 await this.updateOracleRates();
