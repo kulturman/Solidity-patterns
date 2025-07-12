@@ -1,15 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.28;
 
-contract Oracle {
-    enum Currency {
-        EUR,
-        USD
-    }
+import {IOracle} from "./interfaces/IOracle.sol";
 
-    error OnlyOwner();
-    error RateNotAvailable();
-
+contract Oracle is IOracle {
     address public owner;
 
     struct ExchangeRate {
