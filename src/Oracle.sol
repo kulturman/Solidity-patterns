@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.28;
 
-import {console} from "../lib/forge-std/src/console.sol";
-
 contract Oracle {
+    enum Currency {
+        EUR,
+        USD
+    }
+
     error OnlyOwner();
-    error EmptyCurrency();
     error InvalidRate();
     error RateNotAvailable();
 
@@ -16,9 +18,9 @@ contract Oracle {
         uint256 timestamp;
     }
 
-    mapping(string => ExchangeRate) public exchangeRates;
+    mapping(Currency => ExchangeRate) public exchangeRates;
 
-    event RateUpdated(string currency, uint256 rate, uint256 timestamp);
+    event RateUpdated(Currency currency, uint256 rate, uint256 timestamp);
 
     modifier onlyOwner() {
         if (msg.sender != owner) revert OnlyOwner();
@@ -29,27 +31,19 @@ contract Oracle {
         owner = msg.sender;
     }
 
-    function updateRate(string memory currency, uint256 rate) external onlyOwner {
-        if (bytes(currency).length == 0) revert EmptyCurrency();
+    function updateRate(Currency currency, uint256 rate) external onlyOwner {
         if (rate == 0) revert InvalidRate();
 
         exchangeRates[currency] = ExchangeRate({rate: rate, timestamp: block.timestamp});
 
-        console.log("Rate has been updated for %s: %d at %d", currency, rate, block.timestamp);
         emit RateUpdated(currency, rate, block.timestamp);
     }
 
-    function getRate(string memory currency) external view returns (uint256, uint256) {
+    function getRate(Currency currency) external view returns (uint256, uint256) {
         ExchangeRate memory exchangeRate = exchangeRates[currency];
         if (exchangeRate.timestamp == 0) revert RateNotAvailable();
 
         return (exchangeRate.rate, exchangeRate.timestamp);
     }
 
-    function isRateStale(string memory currency, uint256 maxAge) external view returns (bool) {
-        ExchangeRate memory exchangeRate = exchangeRates[currency];
-        if (exchangeRate.timestamp == 0) return true;
-
-        return (block.timestamp - exchangeRate.timestamp) > maxAge;
-    }
 }

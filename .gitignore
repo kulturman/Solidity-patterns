@@ -15,3 +15,5 @@ docs/
 off-chain/node_modules
 off-chain/build*
 .idea
+src/Test.sol
+test/TestTest.sol

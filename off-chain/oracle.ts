@@ -18,11 +18,10 @@ class OracleFeeder {
     private readonly API_URL = 'https://api.exchangerate-api.com/v4/latest/XOF';
 
     private readonly ORACLE_ABI = [
-        'function updateRate(string memory currency, uint256 rate) external',
-        'function getRate(string memory currency) external view returns (uint256, uint256)',
+        'function updateRate(uint8 currency, uint256 rate) external',
+        'function getRate(uint8 currency) external view returns (uint256, uint256)',
         'function owner() external view returns (address)',
         'error OnlyOwner()',
-        'error EmptyCurrency()',
         'error InvalidRate()',
         'error RateNotAvailable()'
     ];
@@ -81,7 +80,7 @@ class OracleFeeder {
             // Update USD rate
             try {
                 const nonce = await this.wallet.getNonce();
-                const usdTx = await this.oracleContract.updateRate('USD', usdRateWei, { nonce  });
+                const usdTx = await this.oracleContract.updateRate(1, usdRateWei, { nonce  });
                 await usdTx.wait();
                 console.log(`USD rate updated: ${usdTx.hash}`);
             } catch (error) {
@@ -93,7 +92,7 @@ class OracleFeeder {
             // Update EUR rate
             try {
                 const nonce = await this.wallet.getNonce();
-                const eurTx = await this.oracleContract.updateRate('EUR', eurRateWei, { nonce });
+                const eurTx = await this.oracleContract.updateRate(0, eurRateWei, { nonce });
                 await eurTx.wait();
                 console.log(`EUR rate updated: ${eurTx.hash}`);
             } catch (error) {
@@ -112,7 +111,7 @@ class OracleFeeder {
 
         //Check oracle was updated
         try {
-            const usdRate = await this.oracleContract.getRate('USD');
+            const usdRate = await this.oracleContract.getRate(1);
 
             console.log(`Current USD rate: ${ethers.formatUnits(usdRate[0], 18)}`);
         } catch (error) {

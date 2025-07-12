@@ -3,44 +3,40 @@ pragma solidity ^0.8.10;
 
 error StaleRate();
 
+enum Currency {
+    EUR,
+    USD
+}
+
 interface IOracle {
-    function getRate(string memory currency) external view returns (uint256, uint256);
-    function isRateStale(string memory currency, uint256 maxAge) external view returns (bool);
+    function getRate(Currency currency) external view returns (uint256, uint256);
 }
 
 contract OracleConsumer {
     IOracle public oracle;
     uint256 public constant MAX_RATE_AGE = 3600;
 
-    event RateRequested(string currency, uint256 rate, uint256 timestamp);
-
     constructor(address _oracle) {
         oracle = IOracle(_oracle);
     }
 
-    function getUSDToXOFRate() external view returns (uint256 rate, uint256 timestamp) {
-        if (oracle.isRateStale("USD", MAX_RATE_AGE)) revert StaleRate();
-        return oracle.getRate("USD");
+    function getUSDToXOFRate() public view returns (uint256 rate, uint256 timestamp) {
+        (rate, timestamp) = oracle.getRate(Currency.USD);
+        if (block.timestamp - timestamp > MAX_RATE_AGE) revert StaleRate();
     }
 
-    function getEURToXOFRate() external view returns (uint256 rate, uint256 timestamp) {
-        if (oracle.isRateStale("EUR", MAX_RATE_AGE)) revert StaleRate();
-        return oracle.getRate("EUR");
+    function getEURToXOFRate() public view returns (uint256 rate, uint256 timestamp) {
+        (rate, timestamp) = oracle.getRate(Currency.EUR);
+        if (block.timestamp - timestamp > MAX_RATE_AGE) revert StaleRate();
     }
 
     function convertUSDToXOF(uint256 usdAmount) external view returns (uint256) {
-        (uint256 rate,) = this.getUSDToXOFRate();
+        (uint256 rate,) = getUSDToXOFRate();
         return (usdAmount * rate) / 1e18;
     }
 
     function convertEURToXOF(uint256 eurAmount) external view returns (uint256) {
-        (uint256 rate,) = this.getEURToXOFRate();
+        (uint256 rate,) = getEURToXOFRate();
         return (eurAmount * rate) / 1e18;
-    }
-
-    function requestAndLogRate(string memory currency) external {
-        if (oracle.isRateStale(currency, MAX_RATE_AGE)) revert StaleRate();
-        (uint256 rate, uint256 timestamp) = oracle.getRate(currency);
-        emit RateRequested(currency, rate, timestamp);
     }
 }
