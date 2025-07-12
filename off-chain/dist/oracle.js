@@ -28,7 +28,6 @@ class OracleFeeder {
             'function getRate(uint8 currency) external view returns (uint256, uint256)',
             'function owner() external view returns (address)',
             'error OnlyOwner()',
-            'error InvalidRate()',
             'error RateNotAvailable()'
         ];
         this.provider = new ethers_1.ethers.JsonRpcProvider(rpcUrl);

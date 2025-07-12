@@ -8,7 +8,6 @@ contract Oracle {
     }
 
     error OnlyOwner();
-    error InvalidRate();
     error RateNotAvailable();
 
     address public owner;
@@ -32,8 +31,6 @@ contract Oracle {
     }
 
     function updateRate(Currency currency, uint256 rate) external onlyOwner {
-        if (rate == 0) revert InvalidRate();
-
         exchangeRates[currency] = ExchangeRate({rate: rate, timestamp: block.timestamp});
 
         emit RateUpdated(currency, rate, block.timestamp);
