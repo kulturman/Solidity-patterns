@@ -34,20 +34,18 @@ contract PermitTest is Test {
         uint256 deadline = block.timestamp + 1 days;
         uint256 nonce = permitContract.nonces(owner);
 
-        bytes32 structHash = keccak256(abi.encode(
-            keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"),
-            owner,
-            spender,
-            value,
-            nonce,
-            deadline
-        ));
+        bytes32 structHash = keccak256(
+            abi.encode(
+                keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"),
+                owner,
+                spender,
+                value,
+                nonce,
+                deadline
+            )
+        );
 
-        bytes32 digest = keccak256(abi.encodePacked(
-            "\x19\x01",
-            permitContract.DOMAIN_SEPARATOR(),
-            structHash
-        ));
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", permitContract.DOMAIN_SEPARATOR(), structHash));
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, digest);
 

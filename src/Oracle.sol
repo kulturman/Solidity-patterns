@@ -45,5 +45,4 @@ contract Oracle {
 
         return (exchangeRate.rate, exchangeRate.timestamp);
     }
-
 }
