@@ -11,6 +11,11 @@ interface ExchangeRateResponse {
     date: string;
 }
 
+enum Currency {
+    EUR = 0,
+    USD = 1,
+}
+
 class OracleFeeder {
     private readonly provider: ethers.Provider;
     private readonly wallet: ethers.Wallet;
@@ -79,8 +84,7 @@ class OracleFeeder {
 
             // Update USD rate
             try {
-                const nonce = await this.wallet.getNonce();
-                const usdTx = await this.oracleContract.updateRate(1, usdRateWei, { nonce  });
+                const usdTx = await this.oracleContract.updateRate(Currency.USD, usdRateWei);
                 await usdTx.wait();
                 console.log(`USD rate updated: ${usdTx.hash}`);
             } catch (error) {
@@ -91,8 +95,7 @@ class OracleFeeder {
 
             // Update EUR rate
             try {
-                const nonce = await this.wallet.getNonce();
-                const eurTx = await this.oracleContract.updateRate(0, eurRateWei, { nonce });
+                const eurTx = await this.oracleContract.updateRate(Currency.EUR, eurRateWei);
                 await eurTx.wait();
                 console.log(`EUR rate updated: ${eurTx.hash}`);
             } catch (error) {
@@ -111,7 +114,7 @@ class OracleFeeder {
 
         //Check oracle was updated
         try {
-            const usdRate = await this.oracleContract.getRate(1);
+            const usdRate = await this.oracleContract.getRate(Currency.USD);
 
             console.log(`Current USD rate: ${ethers.formatUnits(usdRate[0], 18)}`);
         } catch (error) {
