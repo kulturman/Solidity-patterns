@@ -38,6 +38,8 @@ contract ProxyTest is Test {
         assertEq(proxy.totalBalance(), 100);
 
         ProxyImplementationV2 implementation2 = new ProxyImplementationV2();
+        vm.expectEmit();
+        emit Proxy.ImplementationUpdated(address(implementation2));
         proxy.updateImplementation(address(implementation2));
 
         vm.expectEmit();
