@@ -7,6 +7,7 @@ contract Proxy {
     address public owner;
 
     event ImplementationUpdated(address newImplementation);
+
     error MustBeOwner();
     error InvalidImplementationAddress();
     error DelegateCallFailed();
@@ -23,9 +24,7 @@ contract Proxy {
 
     //I could have used a fallback function, but just wanted to show how to use delegatecall explicitly, Alexandre
     function depositMoney(uint256 amount) external {
-        (bool success,) = implementation.delegatecall(
-            abi.encodeWithSignature("depositMoney(uint256)", amount)
-        );
+        (bool success,) = implementation.delegatecall(abi.encodeWithSignature("depositMoney(uint256)", amount));
         require(success, DelegateCallFailed());
     }
 

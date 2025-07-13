@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.28;
 
-import "../src/Proxy.sol";
-import "../src/ProxyImplementation.sol";
-import "../src/ProxyImplementationV2.sol";
-import {Test} from "../lib/forge-std/src/Test.sol";
+import {Proxy} from "../src/Proxy.sol";
+import {ProxyImplementation} from "../src/ProxyImplementation.sol";
+import {ProxyImplementationV2} from "../src/ProxyImplementationV2.sol";
+import {Test, console} from "../lib/forge-std/src/Test.sol";
 
 contract ProxyTest is Test {
     Proxy public proxy;
