@@ -3,34 +3,48 @@ pragma solidity 0.8.28;
 
 contract Proxy {
     uint256 public totalBalance;
-    address public implementation;
-    address public owner;
+    bytes32 private constant IMPLEMENTATION_SLOT = bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1);
+    address public immutable owner;
 
-    event ImplementationUpdated(address newImplementation);
+    event ImplementationUpdated(address);
 
     error MustBeOwner();
     error InvalidImplementationAddress();
     error DelegateCallFailed();
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, MustBeOwner());
-        _;
+    constructor(address _implementation, address _owner) {
+        owner = _owner;
+        bytes32 slot = IMPLEMENTATION_SLOT;
+
+        assembly {
+            sstore(slot, _implementation)
+        }
     }
 
-    constructor(address _implementation) {
-        implementation = _implementation;
-        owner = msg.sender;
+    function getImplementation() public view returns (address implementation) {
+        bytes32 slot = IMPLEMENTATION_SLOT;
+
+        assembly {
+            implementation := sload(slot)
+        }
     }
 
-    //I could have used a fallback function, but just wanted to show how to use delegatecall explicitly, Alexandre
-    function depositMoney(uint256 amount) external {
-        (bool success,) = implementation.delegatecall(abi.encodeWithSignature("depositMoney(uint256)", amount));
-        require(success, DelegateCallFailed());
-    }
 
-    function updateImplementation(address newImplementation) external onlyOwner {
-        require(newImplementation != address(0) && implementation.code.length > 0, InvalidImplementationAddress());
-        implementation = newImplementation;
-        emit ImplementationUpdated(newImplementation);
+    fallback() external {
+        if (msg.sender == owner) {
+            address newImplementation = msg.data.length > 0 ? abi.decode(msg.data, (address)) : address(0);
+            bytes32 slot = IMPLEMENTATION_SLOT;
+
+            assembly {
+                sstore(slot, newImplementation)
+            }
+
+            emit ImplementationUpdated(newImplementation);
+        }
+
+        else {
+            (bool success,) = getImplementation().delegatecall(msg.data);
+            require(success, DelegateCallFailed());
+        }
     }
 }
