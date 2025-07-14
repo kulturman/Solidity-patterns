@@ -23,7 +23,7 @@ contract ProxyAdmin {
         owner = newOwner;
     }
 
-    function updateImplementation(address proxy, address newImplementation, bytes calldata data) external onlyOwner {
+    function updateImplementation(address proxy, address newImplementation, bytes memory data) external onlyOwner {
         IUpgradableProxy(proxy).updateImplementation(newImplementation, data);
     }
 }
