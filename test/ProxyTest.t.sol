@@ -5,12 +5,12 @@ import {ProxyAdmin} from "../src/ProxyAdmin.sol";
 import {ProxyImplementationV2} from "../src/ProxyImplementationV2.sol";
 import {ProxyImplementation} from "../src/ProxyImplementation.sol";
 import {Proxy} from "../src/Proxy.sol";
-import {Test, console} from "../lib/forge-std/src/Test.sol";
+import {Test} from "../lib/forge-std/src/Test.sol";
 
 contract ProxyTest is Test {
     Proxy public proxy;
 
-    /*function testProxyWithImplementation1() public {
+    function testProxyWithImplementation1() public {
         ProxyImplementation implementation = new ProxyImplementation();
         proxy = new Proxy(address(implementation), address(this));
 
@@ -53,14 +53,14 @@ contract ProxyTest is Test {
         emit ProxyImplementationV2.DepositMade(200);
         address(proxy).call(abi.encodeWithSignature("depositMoney(uint256)", 100));
         assertEq(proxy.totalBalance(), 300);
-    }*/
+    }
 
     function testCallImplementationFromProxyAdmin() public {
         ProxyImplementation implementation = new ProxyImplementation();
         ProxyAdmin proxyAdmin = new ProxyAdmin();
         proxy = new Proxy(address(implementation), address(proxyAdmin));
 
-        proxyAdmin.updateImplementation(address(proxy), address(implementation), abi.encodePacked(uint256(100)));
+        proxyAdmin.updateImplementation(address(proxy), address(implementation), abi.encodeWithSignature("depositMoney(uint256)", 100));
         assertEq(proxy.totalBalance(), 100);
     }
 }

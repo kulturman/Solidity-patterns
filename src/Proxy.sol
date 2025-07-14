@@ -2,7 +2,6 @@
 pragma solidity 0.8.28;
 
 import {IUpgradableProxy} from "./interfaces/IUpgradableProxy.sol";
-import {console} from "../lib/forge-std/src/console.sol";
 
 contract Proxy {
     bytes32 private constant IMPLEMENTATION_SLOT = bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1);
@@ -13,6 +12,7 @@ contract Proxy {
     event ImplementationUpdated(address);
 
     error MustBeOwner();
+    error ProxyDeniedAdminAccess();
     error InvalidImplementationAddress();
     error DelegateCallFailed();
 
@@ -28,18 +28,15 @@ contract Proxy {
     fallback() external {
         if (msg.sender == owner) {
             if (msg.sig != IUpgradableProxy.updateImplementation.selector) {
-                revert("You are not supposed to do that");
+                revert ProxyDeniedAdminAccess();
             } else {
                 (address newImplementation, bytes memory data) = abi.decode(msg.data[4:], (address, bytes));
                 _setImplementation(newImplementation);
 
-                console.logBytes(data);
-                console.logBytes(msg.data);
-
-                if (msg.data.length > 0) {
+                if (data.length > 0) {
                     _delegateCall(
                         newImplementation,
-                        abi.encodePacked(data)
+                        data
                     );
                 }
             }
