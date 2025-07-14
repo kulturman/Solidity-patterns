@@ -60,7 +60,9 @@ contract ProxyTest is Test {
         ProxyAdmin proxyAdmin = new ProxyAdmin();
         proxy = new Proxy(address(implementation), address(proxyAdmin));
 
-        proxyAdmin.updateImplementation(address(proxy), address(implementation), abi.encodeWithSignature("depositMoney(uint256)", 100));
+        proxyAdmin.updateImplementation(
+            address(proxy), address(implementation), abi.encodeWithSignature("depositMoney(uint256)", 100)
+        );
         assertEq(proxy.totalBalance(), 100);
     }
 }

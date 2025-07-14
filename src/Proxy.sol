@@ -34,10 +34,7 @@ contract Proxy {
                 _setImplementation(newImplementation);
 
                 if (data.length > 0) {
-                    _delegateCall(
-                        newImplementation,
-                        data
-                    );
+                    _delegateCall(newImplementation, data);
                 }
             }
         } else {
