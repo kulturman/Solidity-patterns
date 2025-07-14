@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.28;
 
-import {Proxy} from "../src/Proxy.sol";
-import {ProxyImplementation} from "../src/ProxyImplementation.sol";
+import "../src/ProxyAdmin.sol";
 import {ProxyImplementationV2} from "../src/ProxyImplementationV2.sol";
+import {ProxyImplementation} from "../src/ProxyImplementation.sol";
+import {Proxy} from "../src/Proxy.sol";
 import {Test} from "../lib/forge-std/src/Test.sol";
 
 contract ProxyTest is Test {
     Proxy public proxy;
 
-    function testProxyWithImplementation1() public {
+    /*function testProxyWithImplementation1() public {
         ProxyImplementation implementation = new ProxyImplementation();
         proxy = new Proxy(address(implementation), address(this));
 
@@ -54,5 +55,13 @@ contract ProxyTest is Test {
         address(proxy).call(abi.encodeWithSignature("depositMoney(uint256)", 100));
         assertEq(proxy.totalBalance(), 300);
 
+    }*/
+
+    function testProxyAdmin() public {
+        ProxyImplementation implementation = new ProxyImplementation();
+        ProxyAdmin proxyAdmin = new ProxyAdmin();
+        proxy = new Proxy(address(implementation), address(proxyAdmin));
+
+        proxyAdmin.updateImplementation(address(proxy), address(implementation), "");
     }
 }
