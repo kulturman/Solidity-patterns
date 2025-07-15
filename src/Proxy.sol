@@ -5,7 +5,7 @@ import {IUpgradableProxy} from "./interfaces/IUpgradableProxy.sol";
 
 contract Proxy {
     bytes32 private constant IMPLEMENTATION_SLOT = bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1);
-    address public immutable owner;
+    address public immutable proxyAdmin;
 
     uint256 public totalBalance;
 
@@ -17,7 +17,7 @@ contract Proxy {
     error DelegateCallFailed();
 
     constructor(address _implementation, address _owner) {
-        owner = _owner;
+        proxyAdmin = _owner;
         bytes32 slot = IMPLEMENTATION_SLOT;
 
         assembly {
@@ -26,7 +26,7 @@ contract Proxy {
     }
 
     fallback() external {
-        if (msg.sender == owner) {
+        if (msg.sender == proxyAdmin) {
             if (msg.sig != IUpgradableProxy.updateImplementation.selector) {
                 revert ProxyDeniedAdminAccess();
             } else {

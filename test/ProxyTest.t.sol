@@ -6,6 +6,7 @@ import {ProxyImplementationV2} from "../src/ProxyImplementationV2.sol";
 import {ProxyImplementation} from "../src/ProxyImplementation.sol";
 import {Proxy} from "../src/Proxy.sol";
 import {Test} from "../lib/forge-std/src/Test.sol";
+import {IProxyImplementation} from "../src/interfaces/IProxyImplementation.sol";
 
 contract ProxyTest is Test {
     Proxy public proxy;
@@ -15,7 +16,8 @@ contract ProxyTest is Test {
         proxy = new Proxy(address(implementation), address(this));
 
         vm.startPrank(address(1));
-        address(proxy).call(abi.encodeWithSignature("depositMoney(uint256)", 100));
+        // We can use higher level calls to interact with the proxy as well
+        IProxyImplementation(address(proxy)).depositMoney(100);
         assertEq(proxy.totalBalance(), 100);
         address(proxy).call(abi.encodeWithSignature("depositMoney(uint256)", 100));
         assertEq(proxy.totalBalance(), 200);

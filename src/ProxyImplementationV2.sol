@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.28;
 
-contract ProxyImplementationV2 {
+import {IProxyImplementation} from "./interfaces/IProxyImplementation.sol";
+
+contract ProxyImplementationV2 is IProxyImplementation {
     uint256 public totalBalance;
 
     event DepositMade(uint256 amount);
