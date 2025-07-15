@@ -1,38 +1,73 @@
-# Solidity Oracle Pattern
+# Solidity Design Patterns
 
-A gas-optimized oracle implementation for learning Solidity design patterns and TypeScript automation.
+A collection of smart contract patterns for learning Solidity design patterns and TypeScript automation.
 
 ## Overview
 
-This project is a **learning exercise** to demonstrate oracle patterns in Solidity. It provides XOF (West African Franc) to EUR and USD exchange rates for educational purposes. The project consists of:
+This project is a **learning exercise** to demonstrate various Solidity design patterns. It includes:
 
+### Oracle Pattern
 - **Oracle Contract**: Stores and manages exchange rates with enum-based currency types
 - **Oracle Consumer**: Gas-optimized contract that consumes oracle data with built-in staleness checks
 - **Off-chain Feeder**: TypeScript service that fetches real exchange rates and updates the oracle
 
+### Proxy Pattern
+- **Proxy Contract**: EIP-1967 compliant transparent proxy for contract upgrades
+- **ProxyAdmin**: Administrative contract for managing proxy upgrades
+- **Implementation Contracts**: Upgradeable logic contracts with versioning support
+
 ## Key Features
 
+### Oracle Pattern
 - **Gas Optimization**: Single contract call for rate retrieval with timestamp-based staleness checking
 - **Type Safety**: Uses Solidity enums for currency types (EUR=0, USD=1)
 - **Owner Protection**: Only contract owner can update rates
 - **Staleness Protection**: Automatic rejection of rates older than 1 hour
 - **Real-time Updates**: Automated off-chain service updates rates every 3 seconds
 
+### Proxy Pattern
+- **EIP-1967 Compliance**: Uses standard storage slots for implementation address
+- **Transparent Proxy**: Admin calls are intercepted, user calls are delegated to implementation
+- **Access Control**: Owner-only upgrades through ProxyAdmin contract
+- **Upgrade Safety**: Validates new implementations and supports initialization data
+- **Event Emission**: Tracks implementation updates for transparency
+
 ## Architecture
 
 ### Smart Contracts
 
-#### Oracle.sol
+#### Oracle Pattern
+
+**Oracle.sol**
 - Stores exchange rates with timestamps
 - Uses `Currency` enum for type safety
 - Emits events on rate updates
 - Returns rate and timestamp in single call
 
-#### OracleConsumer.sol  
+**OracleConsumer.sol**  
 - Consumes oracle data efficiently
 - Performs staleness checks locally to save gas
 - Provides conversion utilities (XOF to USD/EUR)
 - Public rate getter functions with built-in validation
+
+#### Proxy Pattern
+
+**Proxy.sol**
+- EIP-1967 compliant transparent proxy contract
+- Delegates all non-admin calls to implementation
+- Restricts admin to upgrade function only
+- Uses assembly for gas-efficient storage access
+
+**ProxyAdmin.sol**
+- Manages proxy upgrades with owner-only access
+- Validates implementation contracts before upgrade
+- Supports initialization data during upgrades
+- Provides secure ownership transfer mechanism
+
+**ProxyImplementation.sol / ProxyImplementationV2.sol**
+- Example implementation contracts showing upgrade patterns
+- V2 demonstrates storage compatibility and feature additions
+- Implements consistent interface across versions
 
 ### Off-chain Service
 
@@ -83,15 +118,31 @@ uint256 xofAmount = consumer.convertUSDToXOF(100 * 1e18);
 (uint256 eurRate, uint256 timestamp) = consumer.getEURToXOFRate();
 ```
 
+### Interacting with Proxy
+
+```solidity
+// Deploy proxy with initial implementation
+Proxy proxy = new Proxy(implementationAddress, adminAddress);
+
+// Upgrade implementation (admin only)
+ProxyAdmin admin = ProxyAdmin(adminAddress);
+admin.updateImplementation(address(proxy), newImplementationAddress, initData);
+
+// Call implementation functions through proxy
+IProxyImplementation(address(proxy)).depositMoney(amount);
+```
+
 ## Learning Objectives
 
 This educational project demonstrates:
 - Gas optimization techniques (single call retrieval, local validation)
-- Solidity design patterns (Oracle pattern, Consumer pattern)
+- Solidity design patterns (Oracle pattern, Proxy pattern, Consumer pattern)
 - Enum usage for type safety and gas efficiency
+- EIP-1967 proxy standards and upgrade patterns
 - Off-chain automation with TypeScript
 - Error handling and custom error types
 - Owner access control patterns
+- Contract upgradeability and storage compatibility
 
 ## Gas Optimization
 
