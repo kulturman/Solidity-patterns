@@ -63,5 +63,7 @@ contract Proxy {
         assembly {
             sstore(slot, newImplementation)
         }
+
+        emit ImplementationUpdated(newImplementation);
     }
 }
